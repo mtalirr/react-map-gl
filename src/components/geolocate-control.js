@@ -19,7 +19,8 @@ const LINEAR_TRANSITION_PROPS = Object.assign({}, TransitionManager.defaultProps
   transitionDuration: 500
 });
 
-const noop = () => {};
+const noop = () => {
+};
 
 const propTypes = Object.assign({}, BaseControl.propTypes, {
   // Custom className
@@ -74,11 +75,9 @@ type State = {
   markerPosition: ?Coordinate
 };
 
-export default class GeolocateControl extends BaseControl<
-  GeolocateControlProps,
+export default class GeolocateControl extends BaseControl<GeolocateControlProps,
   State,
-  HTMLDivElement
-> {
+  HTMLDivElement> {
   static propTypes = propTypes;
   static defaultProps = defaultProps;
 
@@ -89,8 +88,8 @@ export default class GeolocateControl extends BaseControl<
 
   _mapboxGeolocateControl: any = null;
 
-  _geolocateButtonRef: {current: null | HTMLButtonElement} = createRef();
-  _markerRef: {current: null | Marker} = createRef();
+  _geolocateButtonRef: { current: null | HTMLButtonElement } = createRef();
+  _markerRef: { current: null | Marker } = createRef();
 
   componentDidMount() {
     isGeolocationSupported().then(result => {
@@ -147,6 +146,8 @@ export default class GeolocateControl extends BaseControl<
 
     // replace mapbox internal UI elements
     this._mapboxGeolocateControl._geolocateButton = this._geolocateButtonRef.current;
+    const markerRef = this._markerRef.current;
+    this._mapboxGeolocateControl._dotElement = markerRef && markerRef._containerRef.current;
 
     // replace mapbox internal methods
     this._mapboxGeolocateControl._updateMarker = this._updateMarker;
@@ -215,8 +216,17 @@ export default class GeolocateControl extends BaseControl<
   _renderMarker = () => {
     const {showUserLocation} = this.props;
     const {markerPosition} = this.state;
-    if (!showUserLocation || !markerPosition) {
+    if (!showUserLocation) {
       return null;
+    }
+
+    const longitude = markerPosition && markerPosition.longitude || 0;
+    const latitude = markerPosition && markerPosition.latitude || 0;
+
+    // do not show marker when position is not available
+    let className = '';
+    if (markerPosition) {
+      className = 'mapboxgl-user-location-dot';
     }
 
     return (
@@ -224,9 +234,9 @@ export default class GeolocateControl extends BaseControl<
       <Marker
         key="location-maker"
         ref={this._markerRef}
-        className="mapboxgl-user-location-dot"
-        longitude={markerPosition.longitude}
-        latitude={markerPosition.latitude}
+        className={className}
+        longitude={longitude}
+        latitude={latitude}
         onContextMenu={e => e.preventDefault()}
         captureDrag={false}
         captureDoubleClick={false}
