@@ -143,7 +143,7 @@ export default class GeolocateControl extends BaseControl<
 
     // the following re-implement MapboxGeolocateControl's _setupUI
     // replace mapbox internal prop
-    this._mapboxGeolocateControl._watchState = 'OFF';
+    // this._mapboxGeolocateControl._watchState = 'OFF';
 
     // replace mapbox internal UI elements
     this._mapboxGeolocateControl._geolocateButton = this._geolocateButtonRef.current;
